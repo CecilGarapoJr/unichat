@@ -1,0 +1,13 @@
+# SMTP Configuration for UniChat
+# Email: unichat@digitalgrowth.global
+# Server: c105494.sgvps.net
+
+smtp:
+  address: c105494.sgvps.net
+  port: 465
+  domain: digitalgrowth.global
+  user_name: unichat@digitalgrowth.global
+  password: "9wD3i+c3$1^#"
+  authentication: plain
+  enable_starttls_auto: false
+  ssl: true

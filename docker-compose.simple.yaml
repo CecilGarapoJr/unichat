@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+  base:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        BUNDLE_WITHOUT: ''
+        EXECJS_RUNTIME: 'Node'
+        RAILS_ENV: 'development'
+        RAILS_SERVE_STATIC_FILES: 'false'
+    image: chatwoot:development
+    env_file: .env
+    command: ["echo", "Base image built successfully"]
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/data/postgres
+    environment:
+      - POSTGRES_DB=chatwoot
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=
+
+  redis:
+    image: redis:alpine
+    restart: always
+    command: ["sh", "-c", "redis-server"]
+    volumes:
+      - redis:/data/redis
+    ports:
+      - '6379:6379'
+
+  rails:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: chatwoot-rails:development
+    volumes:
+      - ./:/app:delegated
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - 3000:3000
+    env_file: .env
+    environment:
+      - NODE_ENV=development
+      - RAILS_ENV=development
+    entrypoint: ./docker/entrypoints/simple-rails.sh
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+
+volumes:
+  postgres:
+  redis:

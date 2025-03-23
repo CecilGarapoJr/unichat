@@ -1,0 +1,56 @@
+FROM ruby:3.3.3-alpine3.19
+
+ARG NODE_VERSION="23.7.0"
+ARG PNPM_VERSION="10.2.0"
+ENV NODE_VERSION=${NODE_VERSION}
+ENV PNPM_VERSION=${PNPM_VERSION}
+
+ENV RAILS_ENV=development
+ENV NODE_ENV=development
+ENV BUNDLE_PATH="/gems"
+
+RUN apk update && apk add --no-cache \
+  build-base \
+  openssl \
+  tzdata \
+  postgresql-dev \
+  postgresql-client \
+  git \
+  curl \
+  nodejs \
+  npm \
+  yarn
+
+# Install pnpm
+RUN npm install -g pnpm@${PNPM_VERSION}
+
+# Set up the working directory
+WORKDIR /app
+
+# Copy the Gemfile and Gemfile.lock
+COPY Gemfile Gemfile.lock ./
+
+# Install Ruby dependencies
+RUN bundle config set --local force_ruby_platform true
+RUN bundle install
+
+# Copy the package.json and pnpm-lock.yaml
+COPY package.json pnpm-lock.yaml ./
+
+# Install JavaScript dependencies
+RUN pnpm install
+
+# Copy the rest of the application
+COPY . /app
+
+# Create necessary directories
+RUN mkdir -p /app/log /app/tmp/pids
+
+# Create a dummy .git_sha file to avoid the Git error
+RUN echo "development" > /app/.git_sha
+
+# Expose the port
+EXPOSE 3000
+
+# Start the Rails server
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
