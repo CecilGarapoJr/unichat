@@ -13,12 +13,11 @@ services:
       - MALLOC_ARENA_MAX=2
       - WEB_CONCURRENCY=2
       - RAILS_MAX_THREADS=5
-      - DATABASE_URL=postgres://postgres:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-unichat_production}
+      - DATABASE_URL=postgres://postgres@db:5432/unichat_production
       - REDIS_URL=redis://redis:6379/1
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
       - tmp:/app/tmp
       - public:/app/public
       - bundle:/usr/local/bundle
@@ -32,9 +31,7 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
-      - POSTGRES_USER=${DB_USER:-postgres}
-      - POSTGRES_DB=${DB_NAME:-unichat_production}
+      - POSTGRES_DB=unichat_production
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
