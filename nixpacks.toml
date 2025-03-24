@@ -1,18 +1,38 @@
 [phases.setup]
-nixPkgs = [
-  "nodejs_20"
-]
+nixPkgs = ["nodejs_20"]
+nixOverlays = ["https://github.com/railwayapp/nix-npm-overlay/archive/main.tar.gz"]
 cmds = [
-  "npm install -g pnpm@9"
+    "npm install -g corepack@0.24.1",
+    "corepack enable",
+    "corepack prepare pnpm@9 --activate"
 ]
 
 [phases.install]
-cmds = [
-  "pnpm install --no-frozen-lockfile"
+dependsOn = ["setup"]
+cmds = ["pnpm install --frozen-lockfile --prefer-offline"]
+cacheDirectories = [
+    "/root/.local/share/pnpm/store/v3",
+    "node_modules/.cache",
+    ".vite"
 ]
 
 [phases.build]
 dependsOn = ["install"]
 cmds = [
-  "pnpm run build"
+    "pnpm run build:sdk",
+    "pnpm run build"
 ]
+
+[start]
+cmd = "pnpm start"
+
+[variables]
+NODE_ENV = "production"
+VITE_CJS_IGNORE_WARNING = "true"
+VITE_BUILD_WATCH = "false"
+
+[nixpkgs]
+archive = "5148520bfab61f99fd25fb9ff7bfbb50dad3c9db"
+
+[build]
+builder = "nixpacks"
