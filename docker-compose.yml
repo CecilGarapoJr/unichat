@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build:
-      context: https://github.com/CecilGarapoJr/unichat.git#main
+      context: .
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
@@ -13,21 +13,21 @@ services:
       - MALLOC_ARENA_MAX=2
       - WEB_CONCURRENCY=2
       - RAILS_MAX_THREADS=5
+      - DATABASE_URL=postgres://postgres:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-unichat_production}
+      - REDIS_URL=redis://redis:6379/1
     ports:
       - "3000:3000"
     volumes:
+      - .:/app
       - tmp:/app/tmp
       - public:/app/public
       - bundle:/usr/local/bundle
       - node_modules:/app/node_modules
     depends_on:
-      - db
-      - redis
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   db:
     image: postgres:15-alpine
