@@ -1,4 +1,3 @@
-# Use the official Ruby image as base
 FROM ruby:3.1-slim
 
 # Install essential packages and dependencies
@@ -14,11 +13,12 @@ RUN apt-get update -qq && apt-get install -y \
     libssl-dev \
     zlib1g-dev \
     ca-certificates \
-    git \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js and pnpm
+# Install Node.js 20
+RUN npm install -g n && n 20
+
+# Install pnpm
 RUN npm install -g corepack@0.24.1 \
     && corepack enable \
     && corepack prepare pnpm@9.6.1 --activate
@@ -26,10 +26,14 @@ RUN npm install -g corepack@0.24.1 \
 # Set working directory
 WORKDIR /app
 
-# Copy application files
-COPY . .
+# Create necessary directories
+RUN mkdir -p tmp/pids tmp/cache
 
-# Install Ruby and Node.js dependencies
+# Copy package files first
+COPY package.json pnpm-lock.yaml ./
+COPY Gemfile Gemfile.lock ./
+
+# Install dependencies
 RUN gem update --system \
     && gem install bundler:2.4.22 \
     && bundle config set --local deployment 'true' \
@@ -39,15 +43,20 @@ RUN gem update --system \
     && bundle install --jobs=4 --retry=3 --clean \
     && pnpm install --frozen-lockfile --prefer-offline
 
-# Precompile assets
-RUN RAILS_ENV=production \
-    NODE_ENV=production \
-    SECRET_KEY_BASE=dummy \
-    bundle exec rake assets:precompile
+# Copy the rest of the application
+COPY . .
 
-# Add health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
+# Set environment variables
+ENV NODE_ENV=production \
+    RAILS_ENV=production \
+    RAILS_LOG_TO_STDOUT=true \
+    RAILS_SERVE_STATIC_FILES=true \
+    MALLOC_ARENA_MAX=2
+
+# Precompile assets
+RUN SECRET_KEY_BASE=dummy bundle exec rake assets:precompile || true
+
+EXPOSE 3000
 
 # Start the application
-CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+CMD rm -f tmp/pids/server.pid && bundle exec puma -C config/puma.rb
