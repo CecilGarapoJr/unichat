@@ -1,67 +1,72 @@
-FROM ruby:3.3.3-alpine3.19
+# syntax=docker/dockerfile:1
 
-ARG NODE_VERSION="23.7.0"
-ARG PNPM_VERSION="10.2.0"
-ENV NODE_VERSION=${NODE_VERSION}
-ENV PNPM_VERSION=${PNPM_VERSION}
+FROM --platform=linux/amd64 ruby:3.3.3-alpine3.19
 
+# Set environment variables
 ENV RAILS_ENV=production
 ENV NODE_ENV=production
 ENV BUNDLE_PATH="/gems"
+ENV VITE_RUBY_HOST=0.0.0.0
+ENV HUSKY=0
 
-# Install dependencies
+# Install system dependencies
 RUN apk update && apk add --no-cache \
-  build-base \
-  openssl \
-  tzdata \
-  postgresql-dev \
-  postgresql-client \
-  git \
-  curl \
-  nodejs \
-  npm \
-  yarn
+    build-base \
+    openssl \
+    postgresql-dev \
+    git \
+    curl \
+    nodejs \
+    npm \
+    tzdata \
+    postgresql-client \
+    imagemagick \
+    vips \
+    shared-mime-info \
+    file \
+    chromium \
+    chromium-chromedriver
 
 # Install pnpm
-RUN npm install -g pnpm@${PNPM_VERSION}
+RUN npm install -g pnpm@10.6.5
 
-# Set up the working directory
+# Set up working directory
 WORKDIR /app
 
-# Copy the Gemfile and Gemfile.lock
-COPY Gemfile Gemfile.lock ./
+# Copy application files
+COPY . .
+
+# Configure bundler
+RUN bundle config set --local without 'development test' && \
+    bundle config set --local force_ruby_platform true && \
+    bundle config set --local jobs 4 && \
+    bundle config set --local retry 3 && \
+    bundle config set --local git.allow_insecure true
 
 # Install Ruby dependencies
-RUN bundle config set --local without 'development test'
-RUN bundle config set --local force_ruby_platform true
-RUN bundle install --jobs 20 --retry 5
+RUN BUNDLE_JOBS=4 BUNDLE_RETRY=3 bundle install
 
-# Copy the package.json and pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
+# Install Node.js dependencies
+RUN pnpm install
 
-# Install JavaScript dependencies
-RUN pnpm install --prod
+# Build assets
+RUN bundle exec bin/vite build --mode=production
 
-# Copy the rest of the application
-COPY . /app
+# Cleanup
+RUN rm -rf /usr/local/bundle/cache/*.gem && \
+    find /usr/local/bundle/gems -name "*.c" -delete && \
+    find /usr/local/bundle/gems -name "*.o" -delete
 
 # Create necessary directories
-RUN mkdir -p /app/log /app/tmp/pids /app/storage /app/public/uploads
+RUN mkdir -p /app/log /app/tmp/pids /app/storage /app/public/uploads && \
+    chmod -R 755 /app && \
+    echo "production" > /app/.git_sha
 
-# Set permissions
-RUN chmod -R 755 /app
-
-# Precompile assets
-RUN bin/vite build --mode=production
-
-# Create a dummy .git_sha file to avoid the Git error
-RUN echo "production" > /app/.git_sha
-
-# Expose the port
+# Expose port
 EXPOSE 3000
 
 # Set the entrypoint
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 
-# Start the Rails server by default
+# Start the Rails server
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]

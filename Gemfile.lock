@@ -1,27 +1,3 @@
-GIT
-  remote: https://github.com/chatwoot/azure-storage-ruby
-  revision: 9957cf899d33a285b5dfe15bdb875292398e392b
-  branch: chatwoot
-  specs:
-    azure-storage-blob (2.0.3)
-      azure-storage-common (~> 2.0)
-      nokogiri (~> 1, >= 1.10.8)
-    azure-storage-common (2.0.4)
-      faraday (~> 2.0)
-      faraday-follow_redirects (~> 0.3.0)
-      faraday-net_http_persistent (~> 2.0)
-      net-http-persistent (~> 4.0)
-      nokogiri (~> 1, >= 1.10.8)
-
-GIT
-  remote: https://github.com/chatwoot/devise-secure_password
-  revision: adcc85fe1babfe40feae73dbcae64d14fff86e69
-  branch: chatwoot
-  specs:
-    devise-secure_password (2.0.1)
-      devise (>= 4.0.0, < 5.0.0)
-      railties (>= 5.0.0, < 8.0.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -137,6 +113,14 @@ GEM
       aws-sigv4 (~> 1.4)
     aws-sigv4 (1.5.2)
       aws-eventstream (~> 1, >= 1.0.2)
+    azure-storage-blob (2.0.3)
+      azure-storage-common (~> 2.0)
+      nokogiri (~> 1, >= 1.10.8)
+    azure-storage-common (2.0.4)
+      faraday (~> 1.0)
+      faraday_middleware (~> 1.0, >= 1.0.0.rc1)
+      net-http-persistent (~> 4.0)
+      nokogiri (~> 1, >= 1.10.8)
     barnes (0.0.9)
       multi_json (~> 1)
       statsd-ruby (~> 1.1)
@@ -161,8 +145,8 @@ GEM
     climate_control (1.2.0)
     coderay (1.1.3)
     commonmarker (0.23.10)
-    concurrent-ruby (1.3.4)
-    connection_pool (2.4.1)
+    concurrent-ruby (1.3.5)
+    connection_pool (2.5.0)
     crack (1.0.0)
       bigdecimal
       rexml
@@ -196,6 +180,9 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
+    devise-secure_password (2.1.0)
+      devise (>= 4.0.0, < 5.0.0)
+      railties (>= 5.0.0, < 8.0.0)
     devise_token_auth (1.2.3)
       bcrypt (~> 3.0)
       devise (> 3.5.2, < 5)
@@ -220,7 +207,7 @@ GEM
       http (>= 3.0)
       ruby2_keywords
     email_reply_trimmer (0.1.13)
-    erubi (1.13.0)
+    erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
     event_stream_parser (1.0.0)
@@ -235,22 +222,31 @@ GEM
       railties (>= 5.0.0)
     faker (3.2.0)
       i18n (>= 1.8.11, < 2)
-    faraday (2.9.0)
-      faraday-net_http (>= 2.0, < 3.2)
-    faraday-follow_redirects (0.3.0)
-      faraday (>= 1, < 3)
-    faraday-mashify (0.1.1)
-      faraday (~> 2.0)
-      hashie
-    faraday-multipart (1.0.4)
-      multipart-post (~> 2)
-    faraday-net_http (3.1.0)
-      net-http
-    faraday-net_http_persistent (2.1.0)
-      faraday (~> 2.5)
-      net-http-persistent (~> 4.0)
-    faraday-retry (2.2.1)
-      faraday (~> 2.0)
+    faraday (1.10.4)
+      faraday-em_http (~> 1.0)
+      faraday-em_synchrony (~> 1.0)
+      faraday-excon (~> 1.1)
+      faraday-httpclient (~> 1.0)
+      faraday-multipart (~> 1.0)
+      faraday-net_http (~> 1.0)
+      faraday-net_http_persistent (~> 1.0)
+      faraday-patron (~> 1.0)
+      faraday-rack (~> 1.0)
+      faraday-retry (~> 1.0)
+      ruby2_keywords (>= 0.0.4)
+    faraday-em_http (1.0.0)
+    faraday-em_synchrony (1.0.0)
+    faraday-excon (1.1.0)
+    faraday-httpclient (1.0.1)
+    faraday-multipart (1.1.0)
+      multipart-post (~> 2.0)
+    faraday-net_http (1.0.2)
+    faraday-net_http_persistent (1.2.0)
+    faraday-patron (1.0.0)
+    faraday-rack (1.0.0)
+    faraday-retry (1.0.3)
+    faraday_middleware (1.2.1)
+      faraday (~> 1.0)
     fcm (1.0.8)
       faraday (>= 1.0.0, < 3.0)
       googleauth (~> 1)
@@ -263,14 +259,14 @@ GEM
     fugit (1.11.1)
       et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
-    gapic-common (0.20.0)
+    gapic-common (0.21.1)
       faraday (>= 1.9, < 3.a)
       faraday-retry (>= 1.0, < 3.a)
-      google-protobuf (~> 3.14)
-      googleapis-common-protos (>= 1.3.12, < 2.a)
-      googleapis-common-protos-types (>= 1.3.1, < 2.a)
-      googleauth (~> 1.0)
-      grpc (~> 1.36)
+      google-protobuf (~> 3.18)
+      googleapis-common-protos (>= 1.4.0, < 2.a)
+      googleapis-common-protos-types (>= 1.11.0, < 2.a)
+      googleauth (~> 1.9)
+      grpc (~> 1.59)
     geocoder (1.8.1)
     gli (2.22.2)
       ostruct
@@ -293,15 +289,15 @@ GEM
     google-cloud-core (1.7.1)
       google-cloud-env (>= 1.0, < 3.a)
       google-cloud-errors (~> 1.0)
-    google-cloud-dialogflow-v2 (0.31.0)
-      gapic-common (>= 0.20.0, < 2.a)
+    google-cloud-dialogflow-v2 (1.4.1)
+      gapic-common (>= 0.21.1, < 2.a)
       google-cloud-errors (~> 1.0)
-      google-cloud-location (>= 0.4, < 2.a)
+      google-cloud-location (>= 0.7, < 2.a)
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
     google-cloud-errors (1.3.1)
-    google-cloud-location (0.6.0)
-      gapic-common (>= 0.20.0, < 2.a)
+    google-cloud-location (0.8.1)
+      gapic-common (>= 0.21.1, < 2.a)
       google-cloud-errors (~> 1.0)
     google-cloud-storage (1.52.0)
       addressable (~> 2.8)
@@ -312,9 +308,15 @@ GEM
       google-cloud-core (~> 1.6)
       googleauth (~> 1.9)
       mini_mime (~> 1.0)
-    google-cloud-translate-v3 (0.10.0)
-      gapic-common (>= 0.20.0, < 2.a)
+    google-cloud-translate-v3 (1.2.0)
+      gapic-common (>= 0.21.1, < 2.a)
       google-cloud-errors (~> 1.0)
+      google-cloud-location (>= 0.7, < 2.a)
+      google-iam-v1 (>= 0.7, < 2.a)
+    google-iam-v1 (1.1.0)
+      gapic-common (>= 0.21.1, < 2.a)
+      google-cloud-errors (~> 1.0)
+      grpc-google-iam-v1 (~> 1.1)
     google-protobuf (3.25.5)
     google-protobuf (3.25.5-arm64-darwin)
     google-protobuf (3.25.5-x86_64-darwin)
@@ -346,6 +348,10 @@ GEM
     grpc (1.62.0-x86_64-linux)
       google-protobuf (~> 3.25)
       googleapis-common-protos-types (~> 1.0)
+    grpc-google-iam-v1 (1.10.0)
+      google-protobuf (>= 3.18, < 5.a)
+      googleapis-common-protos (~> 1.4)
+      grpc (~> 1.41)
     haikunator (1.1.1)
     hairtrigger (1.0.0)
       activerecord (>= 6.0, < 8)
@@ -369,7 +375,7 @@ GEM
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
     httpclient (2.8.3)
-    i18n (1.14.6)
+    i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     image_processing (1.12.2)
       mini_magick (>= 4.9.5, < 5)
@@ -442,13 +448,13 @@ GEM
     llhttp-ffi (0.4.0)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
-    logger (1.6.0)
+    logger (1.6.6)
     lograge (0.14.0)
       actionpack (>= 4)
       activesupport (>= 4)
       railties (>= 4)
       request_store (~> 1.0)
-    loofah (2.23.1)
+    loofah (2.24.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     mail (2.8.1)
@@ -468,19 +474,17 @@ GEM
     mini_magick (4.12.0)
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
-    minitest (5.25.4)
+    minitest (5.25.5)
     mock_redis (0.36.0)
       ruby2_keywords
     msgpack (1.7.0)
     multi_json (1.15.0)
     multi_xml (0.6.0)
-    multipart-post (2.3.0)
+    multipart-post (2.4.1)
     mutex_m (0.3.0)
     neighbor (0.2.3)
       activerecord (>= 5.2)
-    net-http (0.4.1)
-      uri
-    net-http-persistent (4.0.2)
+    net-http-persistent (4.0.5)
       connection_pool (~> 2.2)
     net-imap (0.4.19)
       date
@@ -498,14 +502,14 @@ GEM
     newrelic_rpm (9.6.0)
       base64
     nio4r (2.7.3)
-    nokogiri (1.18.3)
+    nokogiri (1.18.5)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.3-arm64-darwin)
+    nokogiri (1.18.5-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.3-x86_64-darwin)
+    nokogiri (1.18.5-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.3-x86_64-linux-gnu)
+    nokogiri (1.18.5-x86_64-linux-gnu)
       racc (~> 1.4)
     oauth (1.1.0)
       oauth-tty (~> 1.0, >= 1.0.1)
@@ -575,7 +579,7 @@ GEM
       rack (~> 2.2, >= 2.2.4)
     rack-proxy (0.7.7)
       rack
-    rack-test (2.1.0)
+    rack-test (2.2.0)
       rack (>= 1.3)
     rack-timeout (0.6.3)
     rails (7.0.8.7)
@@ -596,7 +600,7 @@ GEM
       activesupport (>= 5.0.0)
       minitest
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.6.1)
+    rails-html-sanitizer (1.6.2)
       loofah (~> 2.21)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
     railties (7.0.8.7)
@@ -747,13 +751,12 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
-    slack-ruby-client (2.5.2)
-      faraday (>= 2.0)
-      faraday-mashify
-      faraday-multipart
+    slack-ruby-client (1.0.0)
+      faraday (>= 1.0)
+      faraday_middleware
       gli
       hashie
-      logger
+      websocket-driver
     snaky_hash (2.0.1)
       hashie
       version_gem (~> 1.1, >= 1.1.1)
@@ -774,7 +777,7 @@ GEM
     stripe (8.5.0)
     telephone_number (1.4.20)
     test-prof (1.2.1)
-    thor (1.3.1)
+    thor (1.3.2)
     tilt (2.3.0)
     time_diff (0.3.0)
       activesupport
@@ -799,7 +802,6 @@ GEM
     unf_ext (0.0.8.2)
     unicode-display_width (2.4.2)
     uniform_notifier (1.16.0)
-    uri (1.0.3)
     uri_template (0.7.0)
     valid_email2 (5.2.6)
       activemodel (>= 3.2)
@@ -833,7 +835,7 @@ GEM
     working_hours (1.4.1)
       activesupport (>= 3.2)
       tzinfo
-    zeitwerk (2.6.17)
+    zeitwerk (2.7.2)
 
 PLATFORMS
   arm64-darwin-20
@@ -857,7 +859,7 @@ DEPENDENCIES
   attr_extras
   audited (~> 5.4, >= 5.4.1)
   aws-sdk-s3
-  azure-storage-blob!
+  azure-storage-blob (~> 2.0)
   barnes
   bootsnap
   brakeman
@@ -872,7 +874,7 @@ DEPENDENCIES
   ddtrace
   debug (~> 1.8)
   devise (>= 4.9.4)
-  devise-secure_password!
+  devise-secure_password (~> 2.0)
   devise_token_auth (>= 1.2.3)
   dotenv-rails (>= 3.0.0)
   down
@@ -954,7 +956,7 @@ DEPENDENCIES
   sidekiq (>= 7.3.1)
   sidekiq-cron (>= 1.12.0)
   simplecov (= 0.17.1)
-  slack-ruby-client (~> 2.5.2)
+  slack-ruby-client (~> 1.0.0)
   spring
   spring-watcher-listen
   squasher

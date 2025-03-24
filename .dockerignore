@@ -1,17 +1,51 @@
-.bundle
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Environment files
 .env
 .env.*
+.env.sample
+
+# Docker files
 docker-compose.*
-docker/Dockerfile
-docker/dockerfiles
-log
-storage
-public/system
-tmp
-.codeclimate.yml
-public/packs
-node_modules
-vendor/bundle
-.DS_Store
+docker/
+Dockerfile*
+
+# Logs and databases
+log/
+tmp/
+storage/
+*.log
+*.sqlite3
+
+# Node.js
+node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ruby/Rails
+.bundle/
+vendor/bundle/
+public/assets/
+public/packs/
+public/system/
+
+# Development tools
+.vscode/
+.idea/
 *.swp
 *~
+.DS_Store
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Documentation
+docs/
+*.md
+LICENSE

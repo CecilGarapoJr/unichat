@@ -1,0 +1,17 @@
+{
+  "name": "unichat-coolify-mcp-client",
+  "version": "1.0.0",
+  "description": "Coolify MCP client for UniChat deployment",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node scripts/deploy.js",
+    "status": "node scripts/status.js",
+    "logs": "node scripts/logs.js"
+  },
+  "dependencies": {
+    "@wrediam/coolify-mcp-server": "github:wrediam/coolify-mcp-server",
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.1"
+  }
+}

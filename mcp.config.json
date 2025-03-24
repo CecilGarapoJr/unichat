@@ -1,0 +1,21 @@
+{
+  "name": "coolify-mcp",
+  "description": "Coolify MCP client for UniChat deployment",
+  "version": "1.0.0",
+  "type": "client",
+  "server": {
+    "url": "http://localhost:3000",
+    "token": ""
+  },
+  "coolify": {
+    "baseUrl": "",
+    "apiKey": "",
+    "teamId": "",
+    "projectId": ""
+  },
+  "commands": {
+    "deploy": "npm run deploy",
+    "status": "npm run status",
+    "logs": "npm run logs"
+  }
+}
