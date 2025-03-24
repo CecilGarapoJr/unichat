@@ -1,13 +1,23 @@
-FROM ubuntu:22.04
+FROM ruby:3.1-slim
 
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    nodejs \
+    npm \
+    libpq-dev \
+    && npm install -g n \
+    && n 20 \
+    && npm install -g pnpm@9.6.1 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY . .
 
-RUN curl -fsSL https://get.nixpacks.com/install.sh | bash
+RUN bundle install && \
+    pnpm install
 
 EXPOSE 3000
 
-CMD ["nixpacks", "start"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
