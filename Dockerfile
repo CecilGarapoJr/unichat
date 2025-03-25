@@ -21,9 +21,7 @@ RUN apt-get update -qq && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pnpm
-RUN npm install -g corepack@0.24.1 && \
-    corepack enable && \
-    corepack prepare pnpm@9.6.1 --activate
+RUN npm install -g pnpm@9.6.1
 
 # Set working directory
 WORKDIR /app
