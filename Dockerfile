@@ -1,13 +1,5 @@
-# Stage 1: Build Node.js assets
-FROM node:20-slim AS node_builder
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-# Stage 2: Build Ruby application
-FROM ruby:3.1-slim
+# Stage 1: Build Ruby application
+FROM ruby:3.1.4-slim
 
 # Install essential packages
 RUN apt-get update -qq && \
@@ -22,8 +14,19 @@ RUN apt-get update -qq && \
     zlib1g-dev \
     ca-certificates \
     git \
-    nodejs \
+    python3 \
+    python-is-python3 \
+    make \
+    g++ \
+    curl \
+    gnupg2 \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get update && \
+    apt-get install -y nodejs && \
+    npm install -g pnpm@10.2.0
 
 # Set working directory
 WORKDIR /app
@@ -31,7 +34,16 @@ WORKDIR /app
 # Create necessary directories
 RUN mkdir -p tmp/pids tmp/cache
 
-# Copy Ruby dependency files first
+# Initialize git repository (needed for husky)
+RUN git init
+
+# Copy package files first for better caching
+COPY package.json ./
+
+# Install Node.js dependencies
+RUN pnpm install --no-frozen-lockfile
+
+# Copy Ruby dependency files
 COPY Gemfile Gemfile.lock ./
 
 # Install Ruby dependencies
@@ -41,25 +53,35 @@ RUN gem update --system && \
     bundle config set --local without 'development test' && \
     bundle config set --local path 'vendor/bundle' && \
     bundle config set build.nokogiri --use-system-libraries && \
-    bundle install --jobs=4 --retry=3 --clean
-
-# Copy built Node.js assets
-COPY --from=node_builder /app/public ./public
+    bundle install --jobs=4 --retry=3
 
 # Copy the rest of the application
 COPY . .
 
-# Set environment variables
+# Set environment variables for the build
 ENV NODE_ENV=production \
     RAILS_ENV=production \
     RAILS_LOG_TO_STDOUT=true \
     RAILS_SERVE_STATIC_FILES=true \
-    MALLOC_ARENA_MAX=2
+    MALLOC_ARENA_MAX=2 \
+    DATABASE_URL=postgres://postgres:postgres@db:5432/unichat_production
 
-# Precompile assets
-RUN SECRET_KEY_BASE=dummy bundle exec rake assets:precompile || true
+# Build assets in steps
+RUN echo "Building SDK..." && \
+    pnpm run build:sdk
 
-EXPOSE 3000
+# Set a temporary secret key for asset precompilation
+RUN export SECRET_KEY_BASE=$(head -c 32 /dev/urandom | base64) && \
+    echo "Precompiling assets..." && \
+    bundle exec rake assets:precompile --trace && \
+    echo "Building Vite..." && \
+    bundle exec rake vite:build --trace && \
+    unset SECRET_KEY_BASE
+
+# Create entrypoint script
+COPY ./docker-entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/docker-entrypoint.sh
 
 # Start command
-CMD rm -f tmp/pids/server.pid && bundle exec puma -C config/puma.rb
+ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

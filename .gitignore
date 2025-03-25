@@ -71,6 +71,9 @@ test/cypress/videos/*
 /config/master.key
 /config/*.enc
 
+# Secrets
+/config/secrets/
+
 #ignore files under .vscode directory
 .vscode
 .cursor

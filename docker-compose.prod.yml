@@ -1,12 +1,7 @@
 version: '3.8'
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - NODE_ENV=production
-        - RAILS_ENV=production
+    image: twunhuman/unichat:latest
     environment:
       - RAILS_LOG_TO_STDOUT=true
       - RAILS_SERVE_STATIC_FILES=true
@@ -16,12 +11,8 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/unichat_production
       - REDIS_URL=redis://redis:6379/1
       - SECRET_KEY_BASE_FILE=/run/secrets/secret_key_base
-      - DOCKER_BUILDKIT=1
     ports:
       - "3000:3000"
-    volumes:
-      - tmp:/app/tmp
-      - bundle:/usr/local/bundle
     secrets:
       - secret_key_base
     depends_on:
@@ -56,8 +47,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  tmp:
-  bundle:
 
 secrets:
   secret_key_base:
