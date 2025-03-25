@@ -1,6 +1,15 @@
-FROM node:20-slim
+# Stage 1: Build Node.js assets
+FROM node:20-slim AS node_builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
-# Install Ruby and essential packages
+# Stage 2: Build Ruby application
+FROM ruby:3.1-slim
+
+# Install essential packages
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
     build-essential \
@@ -13,8 +22,7 @@ RUN apt-get update -qq && \
     zlib1g-dev \
     ca-certificates \
     git \
-    ruby \
-    ruby-dev \
+    nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -23,19 +31,20 @@ WORKDIR /app
 # Create necessary directories
 RUN mkdir -p tmp/pids tmp/cache
 
-# Copy dependency files first
-COPY package.json package-lock.json ./
+# Copy Ruby dependency files first
 COPY Gemfile Gemfile.lock ./
 
-# Install dependencies
+# Install Ruby dependencies
 RUN gem update --system && \
     gem install bundler:2.4.22 && \
     bundle config set --local deployment 'true' && \
     bundle config set --local without 'development test' && \
     bundle config set --local path 'vendor/bundle' && \
     bundle config set build.nokogiri --use-system-libraries && \
-    bundle install --jobs=4 --retry=3 --clean && \
-    npm ci
+    bundle install --jobs=4 --retry=3 --clean
+
+# Copy built Node.js assets
+COPY --from=node_builder /app/public ./public
 
 # Copy the rest of the application
 COPY . .

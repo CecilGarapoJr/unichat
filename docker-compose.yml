@@ -5,9 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+        - RAILS_ENV=production
     environment:
-      - NODE_ENV=production
-      - RAILS_ENV=production
       - RAILS_LOG_TO_STDOUT=true
       - RAILS_SERVE_STATIC_FILES=true
       - MALLOC_ARENA_MAX=2
@@ -19,9 +20,7 @@ services:
       - "3000:3000"
     volumes:
       - tmp:/app/tmp
-      - public:/app/public
       - bundle:/usr/local/bundle
-      - node_modules:/app/node_modules
     depends_on:
       db:
         condition: service_healthy
@@ -54,6 +53,4 @@ volumes:
   postgres_data:
   redis_data:
   tmp:
-  public:
   bundle:
-  node_modules:
