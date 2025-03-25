@@ -24,19 +24,18 @@ WORKDIR /app
 RUN mkdir -p tmp/pids tmp/cache
 
 # Copy dependency files first
-COPY package.json pnpm-lock.yaml ./
+COPY package.json package-lock.json ./
 COPY Gemfile Gemfile.lock ./
 
-# Enable corepack and install dependencies
-RUN corepack enable && \
-    gem update --system && \
+# Install dependencies
+RUN gem update --system && \
     gem install bundler:2.4.22 && \
     bundle config set --local deployment 'true' && \
     bundle config set --local without 'development test' && \
     bundle config set --local path 'vendor/bundle' && \
     bundle config set build.nokogiri --use-system-libraries && \
     bundle install --jobs=4 --retry=3 --clean && \
-    pnpm install --frozen-lockfile
+    npm ci
 
 # Copy the rest of the application
 COPY . .
