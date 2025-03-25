@@ -1,24 +1,24 @@
 FROM ruby:3.1-slim
 
-# Install essential packages
+# Install essential packages and Node.js 20
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     libvips \
     postgresql-client \
-    nodejs \
-    npm \
     libmagickwand-dev \
     imagemagick \
     libssl-dev \
     zlib1g-dev \
     ca-certificates \
     git \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get update -qq \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
-
-# Install Node.js 20
-RUN npm install -g n && n 20
 
 # Install pnpm
 RUN npm install -g corepack@0.24.1 && \
