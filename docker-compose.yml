@@ -1,47 +1,48 @@
-version: '3.8'
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - NODE_ENV=production
-        - RAILS_ENV=production
+    build: .
+    image: twunhuman/unichat:latest
     environment:
+      - RAILS_ENV=production
+      - NODE_ENV=production
       - RAILS_LOG_TO_STDOUT=true
       - RAILS_SERVE_STATIC_FILES=true
       - MALLOC_ARENA_MAX=2
       - WEB_CONCURRENCY=2
       - RAILS_MAX_THREADS=5
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/unichat_production
+      - DATABASE_URL=postgres://unichat:unichat@db:5432/unichat_production
       - REDIS_URL=redis://redis:6379/1
-      - SECRET_KEY_BASE_FILE=/run/secrets/secret_key_base
-      - DOCKER_BUILDKIT=1
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE:-$(openssl rand -hex 64)}
     ports:
       - "3000:3000"
-    volumes:
-      - tmp:/app/tmp
-      - bundle:/usr/local/bundle
-    secrets:
-      - secret_key_base
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command: bash -c "bundle exec rake db:migrate && bundle exec puma -C config/puma.rb"
 
   db:
     image: ankane/pgvector:latest
     environment:
-      - POSTGRES_DB=unichat_production
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=unichat
+      - POSTGRES_PASSWORD=unichat
+      - POSTGRES_INITDB_ARGS=--data-checksums
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U unichat"]
       interval: 10s
       timeout: 5s
       retries: 5
+    command: ["postgres", "-c", "shared_preload_libraries=vector"]
 
   redis:
     image: redis:7-alpine
@@ -56,9 +57,3 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  tmp:
-  bundle:
-
-secrets:
-  secret_key_base:
-    file: ./config/secrets/secret_key_base.txt

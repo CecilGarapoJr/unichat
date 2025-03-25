@@ -78,8 +78,15 @@ RUN export SECRET_KEY_BASE=$(head -c 32 /dev/urandom | base64) && \
     bundle exec rake vite:build --trace && \
     unset SECRET_KEY_BASE
 
+# Add initialization scripts
+COPY docker-entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/docker-entrypoint.sh
+
+# Add database initialization script
+COPY init-db.sql /docker-entrypoint-initdb.d/
+RUN chmod 755 /docker-entrypoint-initdb.d/init-db.sql
+
 # Create entrypoint script
-COPY ./docker-entrypoint.sh /usr/bin/
 RUN chmod +x /usr/bin/docker-entrypoint.sh
 
 # Start command
