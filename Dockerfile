@@ -1,6 +1,6 @@
-FROM ruby:3.1-slim
+FROM node:20-slim
 
-# Install essential packages and Node.js 20
+# Install Ruby and essential packages
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
     build-essential \
@@ -13,15 +13,9 @@ RUN apt-get update -qq && \
     zlib1g-dev \
     ca-certificates \
     git \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get update -qq \
-    && apt-get install -y nodejs \
+    ruby \
+    ruby-dev \
     && rm -rf /var/lib/apt/lists/*
-
-# Install pnpm
-RUN npm install -g pnpm@9.6.1
 
 # Set working directory
 WORKDIR /app
@@ -33,15 +27,16 @@ RUN mkdir -p tmp/pids tmp/cache
 COPY package.json pnpm-lock.yaml ./
 COPY Gemfile Gemfile.lock ./
 
-# Install dependencies
-RUN gem update --system && \
+# Enable corepack and install dependencies
+RUN corepack enable && \
+    gem update --system && \
     gem install bundler:2.4.22 && \
     bundle config set --local deployment 'true' && \
     bundle config set --local without 'development test' && \
     bundle config set --local path 'vendor/bundle' && \
     bundle config set build.nokogiri --use-system-libraries && \
     bundle install --jobs=4 --retry=3 --clean && \
-    pnpm install --frozen-lockfile --prefer-offline
+    pnpm install --frozen-lockfile
 
 # Copy the rest of the application
 COPY . .
