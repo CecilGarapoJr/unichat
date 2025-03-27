@@ -2,6 +2,8 @@ services:
   web:
     build: .
     image: twunhuman/unichat:latest
+    tty: true
+    stdin_open: true
     environment:
       - RAILS_ENV=production
       - NODE_ENV=production
