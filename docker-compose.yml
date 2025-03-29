@@ -56,6 +56,10 @@ services:
       timeout: 5s
       retries: 5
 
+
 volumes:
-  postgres_data:
-  redis_data:
+  postgres_data: {}
+  redis_data: {}
+
+networks:
+  default:
