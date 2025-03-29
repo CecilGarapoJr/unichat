@@ -17,7 +17,6 @@ services:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE:-$(openssl rand -hex 64)}
     networks:
       - coolify
-      - default
     expose:
       - 3000
     depends_on:
@@ -50,7 +49,6 @@ services:
     command: ["postgres", "-c", "shared_preload_libraries=vector"]
     networks:
       - coolify
-      - default
 
   redis:
     image: redis:7-alpine
@@ -63,7 +61,6 @@ services:
       retries: 5
     networks:
       - coolify
-      - default
 
 
 volumes:
@@ -73,5 +70,3 @@ volumes:
 networks:
   coolify:
     external: true
-  default:
-    name: ${COMPOSE_PROJECT_NAME}
