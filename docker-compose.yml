@@ -15,8 +15,18 @@ services:
       - DATABASE_URL=postgres://unichat:unichat@db:5432/unichat_production
       - REDIS_URL=redis://redis:6379/1
       - SECRET_KEY_BASE=${SECRET_KEY_BASE:-$(openssl rand -hex 64)}
-    ports:
-      - "3000:3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.unichat.rule=Host(`unichat.digitalgrowth.global`)"
+      - "traefik.http.routers.unichat.entrypoints=websecure"
+      - "traefik.http.routers.unichat.tls.certresolver=letsencrypt"
+      - "traefik.http.services.unichat.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.unichat-headers.headers.customResponseHeaders.X-Robots-Tag=noindex,nofollow"
+      - "traefik.http.routers.unichat.middlewares=unichat-headers"
+      - "traefik.http.routers.unichat.service=unichat"
+      - "traefik.http.services.unichat.loadbalancer.passhostheader=true"
+    expose:
+      - "3000"
     depends_on:
       db:
         condition: service_healthy
@@ -57,9 +67,33 @@ services:
       retries: 5
 
 
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=unichat@digitalgrowth.global"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik.yml:/etc/traefik/traefik.yml:ro"
+      - "letsencrypt:/letsencrypt"
+    networks:
+      - default
+
 volumes:
   postgres_data: {}
   redis_data: {}
+  letsencrypt: {}
 
 networks:
   default:
+    driver: bridge
